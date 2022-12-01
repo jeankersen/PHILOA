@@ -7,8 +7,10 @@ int get_random (int max)
 {
    double val;
 
-   val = (double) max * rand ();
+   val = (double) max * rand();
    val = val / (RAND_MAX + 1.0);
 
    return ((int) val);
 }
+
+
