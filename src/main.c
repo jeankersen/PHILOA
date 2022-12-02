@@ -6,21 +6,21 @@
 
 /* Fonction pour le thread du magasin. */
 
-void *fn_store (void *p_data)
+void *fn_manager (void *p_data)
 {
-   t_store *store = (t_store *) p_data;
+   t_data *data = (t_data *) p_data;
    while (1)
    {
 	/* Debut de la zone protegee. */
-      pthread_mutex_lock (&store->mutex_stock);
-      pthread_cond_wait (&store->cond_stock, &store->mutex_stock);
+      pthread_mutex_lock(&data->mutex_stock);
+      pthread_cond_wait(&data->cond_stock, &data->mutex_stock);
 
-      store->stock = INITIAL_STOCK;
-      printf ("Remplissage du stock de %d articles !\n", store->stock);
+      data->stock = INITIAL_STOCK;
+      printf ("Remplissage du stock de %d articles !\n", data->stock);
 
 	   /* Fin de la zone protegee. */
-      pthread_cond_signal(&store->cond_clients);
-      pthread_mutex_unlock(&store->mutex_stock);
+      pthread_cond_signal(&data->cond_philo);
+      pthread_mutex_unlock(&data->mutex_stock);
    }
 
    return NULL;
@@ -29,59 +29,60 @@ void *fn_store (void *p_data)
 
 /* Fonction pour les threads des clients. */
 
-void *fn_clients (void *p_data)
+void *fn_philo (void *p_data)
 {
-   t_store *store = (t_store *) p_data;
+   t_data *data = (t_data *) p_data;
    //int nb = (int) p_data;
 
    while (1)
    {
       int val = get_random(6);
 
+      time_t time = get_time_in_ms();
 
-      sleep(get_random(3));
 
       /* Debut de la zone protegee. */
-      pthread_mutex_lock(&store->mutex_stock);
+      pthread_mutex_lock(&data->mutex_stock);
+      sleep(get_random(3));
 
-      if (val > store->stock)
+      if (val > data->stock)
       {
-         pthread_cond_signal(&store->cond_stock);
-         pthread_cond_wait(&store->cond_clients, &store->mutex_stock);
+         pthread_cond_signal(&data->cond_stock);
+         pthread_cond_wait(&data->cond_philo, &data->mutex_stock);
       }
 
-      store->stock = store->stock - val;
-      printf("Client d prend %d du stock, reste %d en stock !\n", val, store->stock);
+      data->stock = data->stock - val;
+      printf("[%ld] philo %ld prend %d du stock, reste %d en stock !\n", time - data->start_time, data->id_t,  val, data->stock);
 
-      pthread_mutex_unlock(&store->mutex_stock);
+      pthread_mutex_unlock(&data->mutex_stock);
       /* Fin de la zone protegee. */
    }
 
    return NULL;
 }
 
-void create_philo(t_store *store)
+void create_philo(t_data *data)
 {
 
-      //long i = store->id_t;
+      //long i = data->id_t;
       int ret;
       /* Creation du thread du magasin. */
    printf ("Creation du thread du magasin !\n");
-   ret = pthread_create (&store->thread_store, NULL, fn_store, (void *) store);
+   ret = pthread_create (&data->thread_manager, NULL, fn_manager, (void *) data);
 
    /* Creation des threads des clients si celui du magasin a reussi. */
    if (!ret)
    {
       printf ("Creation des threads clients !\n");
-      while(store->id_t < NB_CLIENTS)
+      while(data->id_t <= NB_PHILO)
       {
-         ret = pthread_create(&store->thread_clients[store->id_t], NULL, fn_clients, (void *) store);
+         ret = pthread_create(&data->thread_philo[data->id_t], NULL, fn_philo, (void *) data);
 
          if (ret)
          {
             fprintf (stderr, "%s", strerror (ret));
          }
-		 store->id_t++;
+		 data->id_t++;
       }
    }
    else
@@ -91,13 +92,13 @@ void create_philo(t_store *store)
 
 
    /* Attente de la fin des threads. */
-   store->id_t = 0;
-   while(store->id_t < NB_CLIENTS)
+   data->id_t = 1;
+   while(data->id_t <= NB_PHILO)
    {
-      pthread_join(store->thread_clients[store->id_t], NULL);
-	  store->id_t++;
+      pthread_join(data->thread_philo[data->id_t], NULL);
+	   data->id_t++;
    }
-   pthread_join(store->thread_store, NULL);
+   pthread_join(data->thread_manager, NULL);
 
 }
 
@@ -107,15 +108,11 @@ void create_philo(t_store *store)
 int main (void)
 {
 
-   t_store store;
+   t_data data;
 
-   store.stock = INITIAL_STOCK;
-   store.id_t = 0;
-   pthread_mutex_init(&store.mutex_stock, 0);
-	pthread_cond_init(&store.cond_stock, 0);
-	pthread_cond_init(&store.cond_clients, 0);
-   create_philo(&store);
+   init_arg(&data);
 
+   create_philo(&data);
 
    return EXIT_SUCCESS;
 }

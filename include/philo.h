@@ -9,29 +9,30 @@
 #include <unistd.h>
 #include <string.h>
 
-
 #define INITIAL_STOCK   20
-#define NB_CLIENTS      5
+#define NB_PHILO      5
 
 
-typedef struct s_store
+typedef struct s_data
 {
    int stock;
    long id_t;
 
-   pthread_t thread_store;
-   pthread_t thread_clients[NB_CLIENTS];
+   time_t   start_time;
+
+   pthread_t thread_manager;
+   pthread_t thread_philo[NB_PHILO];
 
    pthread_mutex_t mutex_stock;
 
 
    pthread_cond_t cond_stock;
-   pthread_cond_t cond_clients;
-} t_store;
+   pthread_cond_t cond_philo;
+} t_data;
 
 
-
-
+void init_arg(t_data *data);
+time_t	get_time_in_ms(void);
 int get_random (int max);
 
 #endif
