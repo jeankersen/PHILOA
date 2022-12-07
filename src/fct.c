@@ -1,19 +1,5 @@
 #include "../include/philo.h"
 
-
-/* Fonction pour tirer un nombre au sort entre 0 et max. */
-
-int get_random (int max)
-{
-   double val;
-
-   val = (double) max * rand();
-   val = val / (RAND_MAX + 1.0);
-
-   return ((int) val);
-}
-
-
 time_t	get_time_in_ms(void)
 {
 	struct timeval	tv;
@@ -23,15 +9,49 @@ time_t	get_time_in_ms(void)
 }
 
 
-void init_arg(t_data *data)
+int	ft_atoi(const char *str)
 {
-   data->stock = INITIAL_STOCK;
+	int		negative;
+	long	nb;
 
-   data->id_t = 1;
+	negative = 1;
+	nb = 0;
+	while ((*str >= '\t' && *str <= '\r') || (*str == ' '))
+		str++;
+	if (*str == '-')
+	{
+		negative = -1;
+		str++;
+	}
+	else if (*str == '+')
+		str++;
+	while (*str >= '0' && *str <= '9')
+	{
+		nb = (nb * 10) + *str - 48;
+		str++;
+		if (nb * negative > 2147483647)
+			return (-1);
+		if (nb * negative < -2147483648)
+			return (0);
+	}
+	return (nb * negative);
+}
 
-   data->start_time = get_time_in_ms();
+void init_arg(t_data *arg)
+{
+	arg->start_time = get_time_in_ms();
+	arg->stock = INITIAL_STOCK;
+	arg->index = 1;
+	pthread_mutex_init(&arg->mutex_stock, 0);
+}
 
-   pthread_mutex_init(&data->mutex_stock, 0);
-	pthread_cond_init(&data->cond_stock, 0);
-	pthread_cond_init(&data->cond_philo, 0);
+
+ int get_random (int max)
+{
+   double val;
+
+   val = (double) max * rand ();
+   val = val / (RAND_MAX + 1.0);
+
+   return ((int) val);
 }

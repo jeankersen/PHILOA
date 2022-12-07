@@ -15,7 +15,7 @@ CFLAGS		= -Wall -Wextra -Werror -g
 RM			= rm -rf
 
 $(OBJ)/%.o:	$(SRC)/%.c
-			$(CC) -I$(INC) -c $< -o $@
+			$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
 $(NAME):	$(OBJ) $(OBJS)
 			$(CC) $(OBJS) -lpthread  -o $(NAME)

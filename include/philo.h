@@ -1,38 +1,41 @@
+
 #ifndef PHILO_H
 # define PHILO_H
 
+#define NUM_THREADS 5
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <string.h>
 
-#define INITIAL_STOCK   20
-#define NB_PHILO      5
+#define INITIAL_STOCK   5
 
+typedef struct s_thread_data {
+  int tid;
+  double stuff;
+  pthread_t philo[NUM_THREADS];
+} t_thread_data;
 
 typedef struct s_data
 {
-   int stock;
-   long id_t;
-
-   time_t   start_time;
-
-   pthread_t thread_manager;
-   pthread_t thread_philo[NB_PHILO];
-
-   pthread_mutex_t mutex_stock;
-
-
-   pthread_cond_t cond_stock;
-   pthread_cond_t cond_philo;
+	time_t start_time;
+	long index;
+	int stock;
+	t_thread_data chair[NUM_THREADS];
+	pthread_mutex_t mutex_stock;
 } t_data;
 
+/*Initiate all variables we need*/
+void init_arg(t_data *arg);
 
-void init_arg(t_data *data);
+/*Get time in ms*/
 time_t	get_time_in_ms(void);
+
+/*Get random number*/
 int get_random (int max);
+
+
 
 #endif
