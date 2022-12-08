@@ -9,8 +9,9 @@ void *ft_philo(void *arg)
 	long nb = data->index;
 	while (1)
 	{
-		int val = get_random (6);
+		int val = get_random(6);
 		/*Protected zone by mutex lock*/
+		usleep(2000000);
 		pthread_mutex_lock(&data->mutex_stock);
 		if(val > data->stock)
 		{
@@ -18,7 +19,6 @@ void *ft_philo(void *arg)
 			printf("Remplisaage du stock de %d articles\n", data->stock);
 		}
 		time_t time = get_time_in_ms();
-		sleep(get_random(3));
 		data->stock = data->stock - val;
 		printf("[%ld] philo %ld prend %d, il reste %d\n", time - data->start_time, nb, val, data->stock);
 		/*End of the protected zone*/
@@ -30,9 +30,10 @@ void *ft_philo(void *arg)
 
 void create_thread(t_data *data)
 {
+
 	int rc;
 
-		while(data->index <= NUM_THREADS)
+		while(data->index < NUM_THREADS)
 		{
 			 /*Create  thread data struct array */
     		rc = pthread_create(&data->chair[data->index].philo[data->index], NULL, ft_philo, (void *) data);
@@ -44,9 +45,11 @@ void create_thread(t_data *data)
 			data->index++;
   		}
 
-  	data->index = 1;
+  	data->index = 0;
+
+
   	/* Block until all threads complete */
-  	while(data->index <= NUM_THREADS)
+  	while(data->index < NUM_THREADS)
   	{
     	pthread_join(data->chair[data->index].philo[data->index], NULL);
 		data->index++;
@@ -65,3 +68,6 @@ int main()
 
 	return EXIT_SUCCESS;
 }
+
+
+///verifier lheure, ensuite on prend le arguments...

@@ -1,8 +1,7 @@
-
 #ifndef PHILO_H
 # define PHILO_H
 
-#define NUM_THREADS 5
+#define NUM_THREADS 10
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +9,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define INITIAL_STOCK   5
+#define INITIAL_STOCK   20
 
 typedef struct s_thread_data {
   int tid;

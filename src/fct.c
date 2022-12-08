@@ -1,8 +1,15 @@
 #include "../include/philo.h"
+/*Return time in miliseconds */
 
 time_t	get_time_in_ms(void)
 {
 	struct timeval	tv;
+	/*
+	struct    timeval  {
+  time_t        tv_sec ;   //used for seconds
+  suseconds_t       tv_usec ;   //used for microseconds
+	}
+	*/
 
 	gettimeofday(&tv, NULL);
 	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
@@ -41,8 +48,10 @@ void init_arg(t_data *arg)
 {
 	arg->start_time = get_time_in_ms();
 	arg->stock = INITIAL_STOCK;
-	arg->index = 1;
+	arg->index = 0;
 	pthread_mutex_init(&arg->mutex_stock, 0);
+
+
 }
 
 
