@@ -15,3 +15,14 @@ size_t	ft_tab_size(char **s)
 	}
 }
 
+/*
+
+void	ft_usleep(int ms)
+{
+	long int	time;
+
+	time = timestamp();
+	while (timestamp() - time < ms)
+		usleep(ms / 10);
+}
+*/

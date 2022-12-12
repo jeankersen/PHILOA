@@ -1,7 +1,7 @@
 #include "../include/philo.h"
 /*Return time in miliseconds */
 
-time_t	get_time_in_ms(void)
+long long	get_time_in_ms(void)
 {
 	struct timeval	tv;
 	/*
@@ -44,14 +44,25 @@ int	ft_atoi(const char *str)
 	return (nb * negative);
 }
 
-void init_arg(t_data *arg)
+void init_arg(t_data *arg, char **s)
 {
 	arg->start_time = get_time_in_ms();
 	arg->stock = INITIAL_STOCK;
 	arg->index = 0;
 	pthread_mutex_init(&arg->mutex_stock, 0);
+	arg->chair = malloc(sizeof(t_thread_data) * arg->nbr_philo);
+	if(arg->chair == NULL)
+		exit(EXIT_FAILURE);///CHANGE THIS
+	arg->nbr_philo = ft_atoi(s[1]);
+	arg->time_to_die = ft_atoi(s[2]);
+	arg->stop = 2;
+}
 
 
+void free_all(t_data *arg)
+{
+
+	free(arg->chair);
 }
 
 
@@ -63,4 +74,24 @@ void init_arg(t_data *arg)
    val = val / (RAND_MAX + 1.0);
 
    return ((int) val);
+}
+
+
+void	ft_usleep(int ms)
+{
+	long int	time;
+
+	time = get_time_in_ms();
+	while (get_time_in_ms() - time < ms)
+		usleep(ms / 10);
+}
+
+void *check_death(t_data *data, long nb, long time)
+{
+	pthread_mutex_lock(&data->mutex_stock);
+	if(data->stop > 1)
+		printf("[%ld] philo %ld die\n", time - data->start_time, nb+1);
+	data->stop = 0;
+	pthread_mutex_unlock(&data->mutex_stock);
+	return NULL;
 }

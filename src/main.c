@@ -7,36 +7,38 @@ void *ft_philo(void *arg)
 {
 	t_data *data = (t_data *)arg;
 	long nb = data->index;
-	while (1)
+	while (data->stop >1)
 	{
 		int val = get_random(6);
 		/*Protected zone by mutex lock*/
-		usleep(2000000);
-		pthread_mutex_lock(&data->mutex_stock);
-		if(val > data->stock)
+		long time = get_time_in_ms();
+		ft_usleep(1000);
+		if(time - data->start_time > data->time_to_die)
 		{
-			data->stock = INITIAL_STOCK;
-			printf("Remplisaage du stock de %d articles\n", data->stock);
+			check_death(arg, nb, time);
 		}
-		time_t time = get_time_in_ms();
-		data->stock = data->stock - val;
-		printf("[%ld] philo %ld prend %d, il reste %d\n", time - data->start_time, nb, val, data->stock);
-		/*End of the protected zone*/
-		pthread_mutex_unlock(&data->mutex_stock);
+		else
+		{
+			pthread_mutex_lock(&data->mutex_stock);
+			data->stock = data->stock - val;
+			printf("[%ld] philo %ld prend %d, il reste %d\n", time - data->start_time, nb+1, val, data->stock);
+			/*End of the protected zone*/
+			pthread_mutex_unlock(&data->mutex_stock);
+		}
+		//return NULL;
 	}
 	return NULL;
 }
 
 
-void create_thread(t_data *data)
+int create_thread(t_data *data)
 {
 
 	int rc;
-
-		while(data->index < NUM_THREADS)
+		while(data->index < data->nbr_philo)
 		{
 			 /*Create  thread data struct array */
-    		rc = pthread_create(&data->chair[data->index].philo[data->index], NULL, ft_philo, (void *) data);
+    		rc = pthread_create(&data->chair[data->index].philo, NULL, ft_philo, (void *) data);
 			if(rc)
 			{
       			printf("error: pthread_create, rc: %d\n", rc);
@@ -49,25 +51,40 @@ void create_thread(t_data *data)
 
 
   	/* Block until all threads complete */
-  	while(data->index < NUM_THREADS)
+  	while(data->index < data->nbr_philo)
   	{
-    	pthread_join(data->chair[data->index].philo[data->index], NULL);
+		if(pthread_join(data->chair[data->index].philo, NULL) != 0)
+		{
+			data->index = data->nbr_philo;
+			return 0;
+		}
 		data->index++;
   	}
 
+	return 0;
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
 	t_data arg;
 
-	init_arg(&arg);
+	if(argc == 3)
+	{
+		init_arg(&arg, argv);
 
-	create_thread(&arg);
+		create_thread(&arg);
 
+	}
+	else{
+	printf("bad arg\n");
+
+	}
+
+	free_all(&arg);
 	return EXIT_SUCCESS;
 }
 
 
-///verifier lheure, ensuite on prend le arguments...
+//on a le temps a verifier
+//freee
