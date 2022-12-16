@@ -11,21 +11,33 @@
 
 #define INITIAL_STOCK   20
 
-typedef struct s_thread_data {
-  pthread_t philo;
+typedef struct s_thread_data
+{
+	long int last_time_eat;
+  	pthread_t philo;
+  	pthread_mutex_t mutex_fork_l;
+  	int fork;
 } t_thread_data;
 
 typedef struct s_data
 {
+	int time_to_sleep;
 	long int start_time;
+	int time_to_eat;
 	int	time_to_die;
 	int nbr_philo;
 	long index;
-	int stock;
+	//int stock;
 	int stop;
 	t_thread_data *chair;
-	pthread_mutex_t mutex_stock;
+
+
+	pthread_mutex_t mutex_stop;
+	pthread_mutex_t mutex_dead;
+	pthread_mutex_t mutex_print;
 } t_data;
+
+int	is_dead(t_data *data, int nb);
 
 /*Initiate all variables we need*/
 void init_arg(t_data *arg, char **s);
@@ -40,6 +52,9 @@ void	ft_usleep(int ms);
 
 void free_all(t_data *arg);
 
-void *check_death(t_data *data, long nb, long time);
+void take_fork(t_data *data, long nb);
+void eating(t_data *data, long nb);
+
+//void *check_death(t_data *data, long nb, long time);
 
 #endif
